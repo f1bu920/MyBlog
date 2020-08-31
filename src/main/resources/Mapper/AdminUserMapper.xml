@@ -1,6 +1,42 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.flbu920.blog.Dao.AdminUserMapper">
+    <resultMap id="BaseResultMap" type="com.flbu920.blog.model.AdminUser">
+        <id column="admin_user_id" property="adminUserId"/>
+        <result column="login_user_name" property="loginUserName"/>
+        <result column="login_password" property="loginPassword"/>
+        <result column="nick_name" property="nickName"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        admin_user_id,login_user_name,login_password,nick_name
+    </sql>
+    
+    <select id="getAdminUserById" resultMap="BaseResultMap" parameterType="java.lang.Integer">
+        select
+        <include refid="Base_Column_List"/>
+        from admin_user where admin_user_id = #{id}
+    </select>
 
-</beans>
+    <select id="getAdminUserByNameAndPassword" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from admin_user where login_user_name = #{loginName} and login_password = #{loginPassword}
+    </select>
+
+    <update id="updateAdminUser" parameterType="com.flbu920.blog.model.AdminUser">
+        update admin_user
+        <set>
+            <if test="loginUserName!=null">
+                login_user_name=#{loginUserName,jdbcType=VARCHAR},
+            </if>
+            <if test="loginPassword!=null">
+                login_password=#{loginPassword,jdbcType=VARCHAR},
+            </if>
+            <if test="nickName!=null">
+                nick_name=#{nickName,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where admin_user_id = #{adminUserId}
+    </update>
+</mapper>
