@@ -1,23 +1,20 @@
-package com.flbu920.blog.Model;
+package com.flbu920.blog.model;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-@ToString
-@EqualsAndHashCode
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class AdminUser {
-    @Getter
-    @Setter
+
     private Integer adminUserId;
-    @Getter
-    @Setter
+
     private String loginUserName;
-    @Setter
-    @Getter
+
     private String loginPassword;
-    @Getter
-    @Setter
+
     private String NickName;
 
 }

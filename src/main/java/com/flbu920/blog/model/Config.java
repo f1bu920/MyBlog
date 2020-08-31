@@ -1,24 +1,21 @@
-package com.flbu920.blog.Model;
+package com.flbu920.blog.model;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.Date;
 
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString
-@EqualsAndHashCode
+@Data
 public class Config {
-    @Getter
-    @Setter
+
     private String configName;
-    @Getter
-    @Setter
+
     private String configValue;
-    @Getter
-    @Setter
+
     private Date createTime;
-    @Getter
-    @Setter
+
     private Date updateTime;
 }
