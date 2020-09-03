@@ -42,7 +42,6 @@ public class adminLoginController {
         }
         log.info("登陆成功");
         response.addHeader("token", tokenUtil.sign(login.getAdminUserId(), System.currentTimeMillis()));
-//        return "redirect:/admin/index";
-        return "Result";
+        return "redirect:/admin/index";
     }
 }

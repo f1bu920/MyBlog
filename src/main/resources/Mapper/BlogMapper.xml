@@ -1,6 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.flbu920.blog.Dao.BlogMapper">
+    <resultMap id="BaseResultMap" type="com.flbu920.blog.model.Blog">
+        <id column="blog_id" property="blogId"/>
+        <result column="blog_title" property="blogTitle"/>
+        <result column="blog_category_id" property="blogCategoryId"/>
+        <result column="blog_category_name" property="blogCategoryName"/>
+        <result column="blog_tags" property="blogTags"/>
+        <result column="blog_status" property="blogStatus"/>
+        <result column="blog_views" property="blogViews"/>
+        <result column="content" property="content"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
 
-</beans>
+    <sql id="Base_Column_List">
+        blog_id, blog_title,blog_category_id,blog_category_name,blog_tags,blog_status,blog_views,content,create_time,update_time
+    </sql>
+</mapper>

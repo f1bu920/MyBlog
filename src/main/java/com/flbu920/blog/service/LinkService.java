@@ -5,4 +5,5 @@ package com.flbu920.blog.service;
  * @Date 2020/9/1
  */
 public interface LinkService {
+
 }
