@@ -9,6 +9,7 @@ import com.flbu920.blog.model.Tag;
 import com.flbu920.blog.service.BlogService;
 import com.flbu920.blog.service.TagService;
 import com.github.pagehelper.PageHelper;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -23,6 +24,7 @@ import java.util.*;
  * @date 2020/9/1
  */
 @Service
+@Slf4j
 public class BlogServiceImpl implements BlogService {
     @Resource
     private BlogMapper blogMapper;
@@ -41,22 +43,27 @@ public class BlogServiceImpl implements BlogService {
     public int saveBlog(Blog blog) {
         //更新blog对应的category
         Category category = categoryMapper.selectByPrimaryKey(blog.getBlogCategoryId());
+        //如果不存在就新建
         if (category == null) {
             category = Category.builder().categoryId(blog.getBlogCategoryId())
                     .categoryName(blog.getBlogCategoryName())
-                    .categoryRank(0)
+                    .categoryRank(1)
                     .createTime(new Date())
-                    .categoryIcon("").build();
+                    .categoryIcon("默认图标").build();
+            categoryMapper.insertSelective(category);
+        } else {
+            category.setCategoryRank(category.getCategoryRank() + 1);
+            categoryMapper.updateByPrimaryKeySelective(category);
         }
-        category.setCategoryRank(category.getCategoryRank() + 1);
-        categoryMapper.updateByPrimaryKeySelective(category);
         //更新tags,如果不存在就创建
         String[] tags = blog.getBlogTags().split(",");
         for (String tagName : tags) {
             List<Tag> tagByTagName = tagService.getTagByTagName(tagName);
             //如果不存在就创建
             if (CollectionUtils.isEmpty(tagByTagName)) {
-                Tag tag = Tag.builder().tagName(tagName).build();
+                Tag tag = Tag.builder().tagName(tagName)
+                        .tagCount(0L)
+                        .build();
                 tagByTagName.add(tag);
                 tagMapper.insertSelective(tag);
             }
@@ -82,14 +89,16 @@ public class BlogServiceImpl implements BlogService {
                 oldCategory.setCategoryRank(oldCategory.getCategoryRank() - 1);
                 //更新新的category的rank值
                 Category category = categoryMapper.selectByPrimaryKey(categoryId);
+                //不存在就新增
                 if (category == null) {
                     category = Category.builder()
-                            .categoryId(0)
-                            .categoryName("默认分类")
-                            .categoryIcon("")
+                            .categoryId(categoryId)
+                            .categoryName(blog.getBlogCategoryName())
+                            .categoryIcon("默认图标")
                             .categoryRank(0)
                             .createTime(new Date())
                             .build();
+                    categoryMapper.insertSelective(category);
                 }
                 category.setCategoryRank(category.getCategoryRank() + 1);
                 categoryMapper.updateByPrimaryKeySelective(oldCategory);
@@ -108,7 +117,7 @@ public class BlogServiceImpl implements BlogService {
             }
             //新增标签数据
             for (Tag tag : tagForInsert) {
-                tag.setTagCount(tag.getTagCount() + 1);
+                tag.setTagCount(1L);
                 tagMapper.insertSelective(tag);
             }
             Set<String> set = new HashSet<>(Arrays.asList(tags));
@@ -157,6 +166,16 @@ public class BlogServiceImpl implements BlogService {
             category.setCategoryRank(category.getCategoryRank() - 1);
             categoryMapper.updateByPrimaryKeySelective(category);
             //更新tags
+            String[] tags = blog.getBlogTags().split(",");
+            for (String tagName : tags) {
+                List<Tag> tagByTagName = tagService.getTagByTagName(tagName);
+                if (!CollectionUtils.isEmpty(tagByTagName)) {
+                    for (Tag tag : tagByTagName) {
+                        tag.setTagCount(tag.getTagCount() - 1);
+                        tagMapper.updateByPrimaryKeySelective(tag);
+                    }
+                }
+            }
         }
         return blogMapper.deleteByPrimaryKey(blogId);
     }
@@ -188,4 +207,13 @@ public class BlogServiceImpl implements BlogService {
         Blog build = Blog.builder().blogCategoryName(categoryName).build();
         return blogMapper.select(build);
     }
+
+    @Override
+    public List<Blog> getBlogsByCategoryNameAndPage(String categoryName, int page) {
+        PageHelper.startPage(page,pageSize);
+        Blog build = Blog.builder().blogCategoryName(categoryName).build();
+        return blogMapper.select(build);
+    }
+
+
 }

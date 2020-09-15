@@ -43,6 +43,7 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
         //检查是否有passtoken注释，有则跳过认证
         if (method.isAnnotationPresent(PassToken.class)) {
             PassToken passToken = method.getAnnotation(PassToken.class);
+            log.info("跳过认证");
             if (passToken.required()) {
                 return true;
             }

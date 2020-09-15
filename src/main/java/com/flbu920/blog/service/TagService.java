@@ -18,4 +18,8 @@ public interface TagService {
     Tag getTagById(Integer tagId);
 
     List<Tag> getTagByTagName(String tagName);
+
+    int getTotalTags();
+
+    List<Tag> getTagByPage(Integer page);
 }

@@ -34,4 +34,6 @@ public interface BlogService {
     List<Blog> getBlogsByCategoryId(int categoryId);
 
     List<Blog> getBlogsByCategoryName(String categoryName);
+
+    List<Blog> getBlogsByCategoryNameAndPage(String categoryName,int page);
 }
