@@ -1,5 +1,6 @@
 package com.flbu920.blog.controller.admin;
 
+import cn.hutool.core.exceptions.StatefulException;
 import com.flbu920.blog.model.AdminUser;
 import com.flbu920.blog.service.AdminUserService;
 import com.flbu920.blog.util.BlogResult;
@@ -24,10 +25,10 @@ public class adminLoginController {
     @Autowired
     private TokenUtil tokenUtil;
 
-    @GetMapping("/login")
-    public String login() {
-        return "login";
-    }
+//    @GetMapping("/login")
+//    public String login() {
+//        return "login";
+//    }
 
     @PostMapping("/login")
     @ApiOperation(value = "登录",notes = "根据username和password进行登录")
@@ -40,7 +41,7 @@ public class adminLoginController {
         AdminUser login = adminUserService.login(loginName, loginPassword);
         if (login == null) {
             log.info("没有此用户");
-            return BlogResult.failure("找不到该用户");
+            throw new StatefulException(404,"找不到此用户");
         }
         log.info("登陆成功");
         response.addHeader("token", tokenUtil.sign(login.getAdminUserId(), System.currentTimeMillis()));

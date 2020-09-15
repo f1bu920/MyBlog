@@ -1,5 +1,6 @@
 package com.flbu920.blog.controller.Blog;
 
+import cn.hutool.core.exceptions.StatefulException;
 import com.flbu920.blog.annotation.PassToken;
 import com.flbu920.blog.model.Blog;
 import com.flbu920.blog.service.*;
@@ -24,10 +25,10 @@ public class BlogController {
     private CategoryService categoryService;
     @Resource
     private TagService tagService;
-//    @Resource
-//    private ConfigService configService;
-//    @Resource
-//    private LinkService linkService;
+    @Resource
+    private ConfigService configService;
+    @Resource
+    private LinkService linkService;
 
     @RequestMapping(value = {"/index", "/index.html"}, method = RequestMethod.GET)
     @ApiOperation(value = "获取首页数据")
@@ -40,7 +41,7 @@ public class BlogController {
     public BlogResult page(HttpServletRequest request, @PathVariable("pageNum") int pageNum) {
         List<Blog> blogsByPage = blogService.getBlogsByPage(pageNum);
         if (CollectionUtils.isEmpty(blogsByPage)) {
-            return BlogResult.failure("No Data");
+            throw new StatefulException(404,"find no data");
         }
         return BlogResult.success(blogsByPage);
     }
