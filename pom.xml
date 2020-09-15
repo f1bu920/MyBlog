@@ -75,6 +75,13 @@
             <artifactId>pagehelper-spring-boot-starter</artifactId>
             <version>1.3.0</version>
         </dependency>
+        <!--引入Hutool工具类库-->
+        <dependency>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-all</artifactId>
+            <version>5.4.2</version>
+        </dependency>
+
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
