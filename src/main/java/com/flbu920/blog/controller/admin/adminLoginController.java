@@ -1,6 +1,7 @@
 package com.flbu920.blog.controller.admin;
 
 import cn.hutool.core.exceptions.StatefulException;
+import com.flbu920.blog.annotation.PassToken;
 import com.flbu920.blog.model.AdminUser;
 import com.flbu920.blog.service.AdminUserService;
 import com.flbu920.blog.util.BlogResult;
@@ -31,6 +32,7 @@ public class adminLoginController {
 //    }
 
     @PostMapping("/login")
+    @PassToken
     @ApiOperation(value = "登录",notes = "根据username和password进行登录")
     public BlogResult login2(@RequestParam("username") String loginName,
                              @RequestParam("password") String loginPassword, HttpServletResponse response) {

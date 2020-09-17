@@ -1,6 +1,8 @@
 package com.flbu920.blog.service;
 
 import com.flbu920.blog.model.Blog;
+import com.flbu920.blog.model.VO.BlogDetailVO;
+import com.flbu920.blog.model.VO.BlogListVO;
 import com.flbu920.blog.util.BlogResult;
 
 import java.util.List;
@@ -20,20 +22,30 @@ public interface BlogService {
 
     /**
      * 根据page获取数据
+     *
      * @param page 页数
      * @return
      */
-    List<Blog> getBlogsByPage(int page);
+    List<BlogListVO> getBlogsByPage(int page);
 
     /**
      * 获取博客总数量
+     *
      * @return
      */
     int getTotalNumOfBlogs();
 
     List<Blog> getBlogsByCategoryId(int categoryId);
 
-    List<Blog> getBlogsByCategoryName(String categoryName);
+    List<BlogListVO> getBlogsByCategoryName(String categoryName);
 
-    List<Blog> getBlogsByCategoryNameAndPage(String categoryName,int page);
+    List<BlogListVO> getBlogsByCategoryNameAndPage(String categoryName, int page);
+
+    /**
+     * 根据博客id获取详情
+     *
+     * @param blogId
+     * @return
+     */
+    BlogDetailVO getBlogDetail(Long blogId);
 }

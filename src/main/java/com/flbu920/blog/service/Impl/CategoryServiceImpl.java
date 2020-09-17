@@ -68,4 +68,9 @@ public class CategoryServiceImpl implements CategoryService {
     public Category getCategoryById(Integer categoryId) {
         return categoryMapper.selectByPrimaryKey(categoryId);
     }
+
+    @Override
+    public List<Category> getAllCategories() {
+        return categoryMapper.selectAll();
+    }
 }

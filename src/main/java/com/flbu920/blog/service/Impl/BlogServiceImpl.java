@@ -6,18 +6,24 @@ import com.flbu920.blog.Dao.TagMapper;
 import com.flbu920.blog.model.Blog;
 import com.flbu920.blog.model.Category;
 import com.flbu920.blog.model.Tag;
+import com.flbu920.blog.model.VO.BlogDetailVO;
+import com.flbu920.blog.model.VO.BlogListVO;
 import com.flbu920.blog.service.BlogService;
 import com.flbu920.blog.service.TagService;
+import com.flbu920.blog.util.MarkDownUtil;
 import com.github.pagehelper.PageHelper;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author flbu920
@@ -186,9 +192,10 @@ public class BlogServiceImpl implements BlogService {
     }
 
     @Override
-    public List<Blog> getBlogsByPage(int page) {
+    public List<BlogListVO> getBlogsByPage(int page) {
         PageHelper.startPage(page, pageSize);
-        return blogMapper.selectAll();
+        List<Blog> blogs = blogMapper.selectAll();
+        return getBlogListVOSByBlogs(blogs);
     }
 
     @Override
@@ -203,17 +210,80 @@ public class BlogServiceImpl implements BlogService {
     }
 
     @Override
-    public List<Blog> getBlogsByCategoryName(String categoryName) {
+    public List<BlogListVO> getBlogsByCategoryName(String categoryName) {
         Blog build = Blog.builder().blogCategoryName(categoryName).build();
-        return blogMapper.select(build);
+        List<Blog> select = blogMapper.select(build);
+        return getBlogListVOSByBlogs(select);
     }
 
     @Override
-    public List<Blog> getBlogsByCategoryNameAndPage(String categoryName, int page) {
-        PageHelper.startPage(page,pageSize);
+    public List<BlogListVO> getBlogsByCategoryNameAndPage(String categoryName, int page) {
+        PageHelper.startPage(page, pageSize);
         Blog build = Blog.builder().blogCategoryName(categoryName).build();
-        return blogMapper.select(build);
+        List<Blog> select = blogMapper.select(build);
+        return getBlogListVOSByBlogs(select);
     }
 
+    @Override
+    public BlogDetailVO getBlogDetail(Long blogId) {
+        Blog blog = blogMapper.selectByPrimaryKey(blogId);
+        return getBlogDetailVOFromBlog(blog);
+    }
 
+    /**
+     * 将Blog对象转化为前端视图BlogDetailVO对象
+     *
+     * @param blog
+     * @return
+     */
+    private BlogDetailVO getBlogDetailVOFromBlog(Blog blog) {
+        if (blog != null && blog.getBlogStatus() == 1) {
+            BlogDetailVO blogDetailVO = new BlogDetailVO();
+            //增加浏览量
+            blog.setBlogViews(blog.getBlogViews() + 1);
+            blogMapper.updateByPrimaryKey(blog);
+            BeanUtils.copyProperties(blog, blogDetailVO);
+            blogDetailVO.setContent(MarkDownUtil.convert(blogDetailVO.getContent()));
+            //设置categoryIcon
+            Category category = categoryMapper.selectByPrimaryKey(blogDetailVO.getBlogCategoryId());
+            if (category == null) {
+                category = Category.builder()
+                        .categoryId(0)
+                        .categoryName("默认分类")
+                        .categoryIcon("默认图标")
+                        .build();
+            }
+            blogDetailVO.setCategoryIcon(category.getCategoryIcon());
+            //标签信息
+            if (!StringUtils.isEmpty(blog.getBlogTags())) {
+                blogDetailVO.setBlogTags(Arrays.asList(blog.getBlogTags().split(",")));
+            }
+            return blogDetailVO;
+        }
+        return null;
+    }
+
+    /**
+     * 将Blog列表批量转化为BlogListVO对象
+     *
+     * @param blogList
+     * @return
+     */
+    private List<BlogListVO> getBlogListVOSByBlogs(List<Blog> blogList) {
+        List<BlogListVO> blogListVOS = new ArrayList<>();
+        if (!CollectionUtils.isEmpty(blogList)) {
+            List<Integer> categoryIds = blogList.stream().map(Blog::getBlogCategoryId).collect(Collectors.toList());
+            Map<Integer, String> categoryMap = new HashMap<>();
+            for (Integer categoryId : categoryIds) {
+                categoryMap.put(categoryId, categoryMapper.selectByPrimaryKey(categoryId).getCategoryIcon());
+            }
+            for (Blog blog : blogList) {
+                BlogListVO blogListVO = new BlogListVO();
+                BeanUtils.copyProperties(blog, blogListVO);
+                blogListVO.setCategoryIcon(categoryMap.getOrDefault(blog.getBlogCategoryId(), "默认图标"));
+                blogListVOS.add(blogListVO);
+            }
+        }
+        return blogListVOS;
+    }
 }
